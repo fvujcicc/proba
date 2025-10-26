@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dobrodošli</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+</head>
+<body>
+  <!-- Ikone -->
+  <div class="icon phone" id="phoneBtn"><i style="color: rgb(0, 0, 0);" class="material-icons">phone</i></div>
+  <div class="icon brush" id="brushBtn"><i style="color: rgb(0, 0, 0);" class="material-icons">brush</i></div>
+
+  <!-- Panel za biranje boje -->
+  <div class="color-panel" id="colorPanel">
+    <label for="colorPicker">Odaberi boju:</label>
+    <input type="color" id="colorPicker" value="#b357ff" />
+  </div>
+
+  <!-- Glavni sadržaj -->
+  <div class="card">
+    <h1 id="welcomeText">Dobrodošli</h1>
+    <p>tekst</p>
+    <p>tekst</p>
+    <p>tekst</p>
+    <p>tekst</p>
+    <p>tekst</p>
+    <p>tekst</p>
+  </div>
+
+  <!-- Gumb za promjenu pozadine -->
+  <button id="changeBgBtn">promijeni pozadinu</button>
+  <input type="file" id="bgUpload" accept="image/*" hidden />
+
+  <script src="script.js"></script>
+</body>
+</html>
