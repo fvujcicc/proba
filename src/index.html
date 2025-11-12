@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dobrodošli</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+</head>
+<body>
+
+  <!-- Glavni sadržaj -->
+  <div class="card">
+    <h1 id="welcomeText">Dobrodošli</h1>
+    <p>tekst</p>
+    <p>tekst</p>
+    <p>tekst</p>
+    <p>tekst</p>
+    <p>tekst</p>
+    <p>tekst</p>
+  </div>
+
+<!-- LOGIN sekcija -->
+<div id="loginSection" class="login-card">
+  <form id="loginForm">
+    <h2>Prijava vlasnika</h2>
+    <input type="email" name="email" placeholder="Email" required />
+    <input type="password" name="password" placeholder="Lozinka" required />
+    <button type="submit">Prijavi se</button>
+  </form>
+</div>
+<br>
+  <!-- Gumb za promjenu pozadine (vidljiv samo vlasniku) -->
+    <button class="dugme" id="changeBgBtn" style="display:none;">Promijeni pozadinu</button>
+    <input type="file" id="bgUpload" accept="image/*" style="display:none;" />
+<br>
+    <!-- Gumb za odjavu -->
+    <button class="dugme" id="logoutBtn" style="display:none;">Odjavi se</button>
+  <script type="module" src="script.js"></script>
+</body>
+</html>

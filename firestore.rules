@@ -1,0 +1,20 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Svi mogu čitati kafiće (korisnici)
+    match /cafes/{cafeId} {
+      allow read: if true;
+
+      // Samo vlasnik može mijenjati SVOJ dokument
+      allow write, update: if request.auth != null
+        && request.auth.uid == resource.data.ownerUid;
+    }
+
+    // Ostalo zabranjeno
+    match /{document=**} {
+      allow read: if false;
+      allow write: if false;
+    }
+  }
+}
