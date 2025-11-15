@@ -1,17 +1,9 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
-    
-    // Svi korisnici mogu čitati javne slike (npr. pozadine)
     match /backgrounds/{fileName} {
-      allow read: if true;
-      allow write: if request.auth != null;
-    }
-
-    // Ostali fajlovi
-    match /{allPaths=**} {
-      allow read: if true;
-      allow write: if request.auth != null;
+      allow read: if fileName.matches('.*\\.jpg$'); // Svi mogu čitati jpg
+      allow write: if request.auth != null && fileName.matches('.*\\.jpg$'); // Samo ulogirani mogu pisati jpg
     }
   }
 }

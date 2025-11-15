@@ -1,41 +1,39 @@
 <!DOCTYPE html>
-<html lang="hr">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dobrodošli</title>
-  <link rel="stylesheet" href="style.css" />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <meta charset="UTF-8">
+    <title>Caffe Bar Project</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <!-- Glavni sadržaj -->
-  <div class="card">
-    <h1 id="welcomeText">Dobrodošli</h1>
-    <p>tekst</p>
-    <p>tekst</p>
-    <p>tekst</p>
-    <p>tekst</p>
-    <p>tekst</p>
-    <p>tekst</p>
-  </div>
+    <!-- CUSTOMER VIEW -->
+    <div id="customerView" style="display:none;">
+        <div class="card" id="cafeCard" style="display:none;">
+            <h1 id="cafeName"></h1>
+            <p>Dobrodošli!</p>
+        </div>
+    </div>
 
-<!-- LOGIN sekcija -->
-<div id="loginSection" class="login-card">
-  <form id="loginForm">
-    <h2>Prijava vlasnika</h2>
-    <input type="email" name="email" placeholder="Email" required />
-    <input type="password" name="password" placeholder="Lozinka" required />
-    <button type="submit">Prijavi se</button>
-  </form>
-</div>
-<br>
-  <!-- Gumb za promjenu pozadine (vidljiv samo vlasniku) -->
-    <button class="dugme" id="changeBgBtn" style="display:none;">Promijeni pozadinu</button>
-    <input type="file" id="bgUpload" accept="image/*" style="display:none;" />
-<br>
-    <!-- Gumb za odjavu -->
-    <button class="dugme" id="logoutBtn" style="display:none;">Odjavi se</button>
-  <script type="module" src="script.js"></script>
+    <!-- ADMIN PANEL -->
+    <div id="adminPanel" style="display:none;">
+
+        <div class="login-card" id="loginBox">
+            <h2>Admin Login</h2>
+            <input type="email" id="email" placeholder="Email">
+            <input type="password" id="password" placeholder="Lozinka">
+            <button id="loginBtn">Login</button>
+        </div>
+
+        <div class="login-card" id="uploadBox" style="display:none;">
+            <h2>Promijeni pozadinu</h2>
+            <input type="file" id="fileInput">
+            <button id="uploadBtn">Upload</button>
+            <button id="logoutBtn">Odjavi se</button>
+        </div>
+
+    </div>
+
+    <script type="module" src="script.js"></script>
 </body>
 </html>

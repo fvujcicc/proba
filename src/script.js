@@ -1,10 +1,11 @@
-// === Firebase inicijalizacija ===
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-storage.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
-// === Config tvojeg projekta ===
+/* ---------------------------------------------------
+   🔧 FIREBASE CONFIG 
+--------------------------------------------------- */
 const firebaseConfig = {
   apiKey: "AIzaSyD5mgGodKXYkHXx0Yornd-WeaoK9BMnoQU",
   authDomain: "caffe-bar-project.firebaseapp.com",
@@ -14,88 +15,114 @@ const firebaseConfig = {
   appId: "1:454296208579:web:f666c4beaaaa683c410e76"
 };
 
-// === Inicijalizacija servisa ===
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-// === HTML elementi ===
-const bgUpload = document.getElementById("bgUpload");
-const changeBgBtn = document.getElementById("changeBgBtn");
-const loginSection = document.getElementById("loginSection");
-const logoutBtn = document.getElementById("logoutBtn");
-
-// === Dohvati cafeId iz URL-a (za korisnike) ===
+/* ---------------------------------------------------
+   CUSTOMER VIEW — URL ima cafeId
+--------------------------------------------------- */
 function getCafeIdFromUrl() {
   const params = new URLSearchParams(window.location.search);
-  return params.get("cafeId");
+  const keys = [...params.keys()];
+  if (keys.length === 0) return null;
+  return keys[0];
 }
 
-// === Prikaz pozadine ===
-async function loadBackground(cafeId) {
-  const cafeDoc = await getDoc(doc(db, "cafes", cafeId));
-  if (cafeDoc.exists()) {
-    document.body.style.backgroundImage = `url('${cafeDoc.data().backgroundUrl}')`;
-  } else {
-    console.log("Cafe not found");
-  }
-}
+const cafeIdURL = getCafeIdFromUrl();
 
-// === Kad se korisnik prijavi ===
-onAuthStateChanged(auth, async (user) => {
-  if (user) {
-    // Dohvati njegov cafeId iz kolekcije users
-    const userDoc = await getDoc(doc(db, "users", user.uid));
-    const cafeId = userDoc.exists() ? userDoc.data().cafeId : null;
+if (cafeIdURL) {
+  // CUSTOMER MODE
+  document.getElementById("customerView").style.display = "block";
 
-    if (cafeId) {
-      await loadBackground(cafeId);
-      changeBgBtn.style.display = "block";
-      loginSection.style.display = "none";
-      logoutBtn.style.display = "inline-block";
+  (async () => {
+    const cafeRef = doc(db, "cafes", cafeIdURL);
+    const snap = await getDoc(cafeRef);
 
-      changeBgBtn.onclick = () => bgUpload.click();
+    if (snap.exists()) {
+      const data = snap.data();
 
-      bgUpload.onchange = async (e) => {
-        const file = e.target.files[0];
-        if (!file) return alert("Odaberi sliku!");
+      if (data.backgroundUrl) {
+        document.body.style.backgroundImage = `url('${data.backgroundUrl}')`;
+      }
 
-        const storageRef = ref(storage, `backgrounds/${cafeId}.jpg`);
-        await uploadBytes(storageRef, file);
-        const url = await getDownloadURL(storageRef);
-
-        await setDoc(doc(db, "cafes", cafeId), { backgroundUrl: url }, { merge: true });
-        document.body.style.backgroundImage = `url('${url}')`;
-        alert("Pozadina uspješno promijenjena!");
-      };
+      if (data.name) {
+        const card = document.getElementById("cafeCard");
+        card.style.display = "block";
+        document.getElementById("cafeName").textContent = data.name;
+      }
     } else {
-      alert("Nema pridruženog cafeId za ovog korisnika!");
+      console.log("Cafe not found in Firestore.");
     }
-  } else {
-    // Korisnik nije prijavljen → koristi URL parametar
-    const cafeId = getCafeIdFromUrl();
-    if (cafeId) await loadBackground(cafeId);
+  })();
+}
 
-    changeBgBtn.style.display = "none";
-    loginSection.style.display = "block";
-    logoutBtn.style.display = "none";
-  }
-});
+/* ---------------------------------------------------
+   ADMIN MODE — root stranica (nema cafeId)
+--------------------------------------------------- */
+else {
+  const adminPanel = document.getElementById("adminPanel");
+  const loginBox = document.getElementById("loginBox");
+  const uploadBox = document.getElementById("uploadBox");
 
-// === Login forma ===
-document.getElementById("loginForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const email = e.target.email.value;
-  const password = e.target.password.value;
-  try {
-    await signInWithEmailAndPassword(auth, email, password);
-  } catch (error) {
-    alert("Greška pri prijavi: " + error.message);
-  }
-});
+  adminPanel.style.display = "block";
 
-// === Logout ===
-logoutBtn.addEventListener("click", () => {
-  signOut(auth);
-});
+  let userCafeId = null;
+
+  // LOGIN
+  document.getElementById("loginBtn").addEventListener("click", async () => {
+    const email = document.getElementById("email").value;
+    const pass = document.getElementById("password").value;
+
+    try {
+      const cred = await signInWithEmailAndPassword(auth, email, pass);
+      const user = cred.user;
+
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+
+      if (!userDoc.exists()) {
+        alert("Nemaš dodijeljen kafić u Firestore! Javite se administratoru.");
+        return;
+      }
+
+      userCafeId = userDoc.data().cafeId;
+
+      loginBox.style.display = "none";
+      uploadBox.style.display = "block";
+
+    } catch (err) {
+      alert("Greška pri prijavi: " + err.message);
+    }
+  });
+
+  // UPLOAD
+  document.getElementById("uploadBtn").addEventListener("click", async () => {
+    const file = document.getElementById("fileInput").files[0];
+
+    if (!file) {
+      alert("Odaberi sliku!");
+      return;
+    }
+
+    if (!userCafeId) {
+      alert("Nisi logiran!");
+      return;
+    }
+
+    try {
+      const storageRef = ref(storage, `backgrounds/${userCafeId}.jpg`);
+
+      await uploadBytes(storageRef, file);
+      const url = await getDownloadURL(storageRef);
+
+      await setDoc(doc(db, "cafes", userCafeId), { backgroundUrl: url }, { merge: true });
+
+      document.body.style.backgroundImage = `url('${url}')`;
+      alert("Pozadina uspješno ažurirana!");
+
+    } catch (err) {
+      alert("Greška pri uploadu: " + err.message);
+    }
+  });
+}
