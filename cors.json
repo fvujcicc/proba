@@ -1,7 +1,7 @@
 [
   {
-    "origin": ["https://caffe-bar-project.web.app"],
-    "method": ["GET", "POST", "PUT", "OPTIONS"],
+    "origin": ["*"],
+    "method": ["GET", "POST", "PUT", "OPTIONS", "DELETE", "HEAD"],
     "maxAgeSeconds": 3600
   }
 ]
