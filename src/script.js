@@ -24,11 +24,7 @@ const db = getFirestore(app);
 function pretvoriSlikuUBase64(slika) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-
-    reader.onload = () => {
-      resolve(reader.result.split(",")[1]);
-    };
-
+    reader.onload = () => resolve(reader.result.split(",")[1]);
     reader.onerror = reject;
     reader.readAsDataURL(slika);
   });
@@ -39,15 +35,12 @@ function pretvoriSlikuUBase64(slika) {
 --------------------------------------------------- */
 function getCafeIdFromUrl() {
   const params = new URLSearchParams(window.location.search);
-  const keys = [...params.keys()];
-  if (keys.length === 0) return null;
-  return keys[0];
+  return params.get("cafeId"); // sada radi sa ?cafeId=...
 }
 
 const cafeIdURL = getCafeIdFromUrl();
 
 if (cafeIdURL) {
-
   document.getElementById("customerView").style.display = "block";
 
   (async () => {
@@ -100,14 +93,17 @@ else {
         return;
       }
 
-      userCafeId = userDoc.data().cafeId;
+      userCafeId = userDoc.data().cafeId?.trim();
+
+      if (!userCafeId) {
+        alert("Korisnik nema validan cafeId!");
+        return;
+      }
 
       loginBox.style.display = "none";
       uploadBox.style.display = "block";
 
-      // -----------------------------
       // ODMAH PROČITAJ POSTOJEĆU SLIKU
-      // -----------------------------
       const cafeRef = doc(db, "cafes", userCafeId);
       const cafeSnap = await getDoc(cafeRef);
 

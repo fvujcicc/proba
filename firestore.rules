@@ -2,18 +2,21 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Svi smiju čitati kafiće (customer view)
-    match /cafes/{cafeId} {
-      allow read: if true;
-
-      // Samo vlasnik smije mijenjati svoj kafić
-      allow write: if request.auth != null
-                   && request.auth.uid == resource.data.ownerUid;
+    // Users – smije čitati i pisati samo svoj profil
+    match /users/{userId} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == userId;
     }
 
-    // Users collection - samo vlasnik može čitati svoj dokument
-    match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+    // Cafes – može uređivati samo kafić koji mu je dodijeljen
+    match /cafes/{cafeId} {
+      // Čitanje svima dopušteno
+      allow read: if true;
+
+      // Pisanje samo ako korisnik ima isti cafeId
+      allow write: if request.auth != null
+                   && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.cafeId != null
+                   && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.cafeId == cafeId;
     }
   }
 }
